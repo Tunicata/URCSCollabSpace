@@ -1,34 +1,48 @@
-use std::collections::BTreeSet;
-
-
-fn prime_generator(num : i32) -> Vec<i32>{
-	if num < 2{
-        return Vec::new();
-    } else if num == 2{
-        return vec![2];
+fn is_prime(num : &i32) -> bool{
+    if num % 5 == 0 || num % 7 == 0{
+        return false;
     } else {
-        let mut _excludes:BTreeSet<i32> = BTreeSet::new();
-        let mut primes:Vec<i32> = vec![2];
-        let mut mark:i32 = 3;
-        while mark < num{
-            if !_excludes.is_empty() && _excludes.contains(&mark){
-                _excludes.remove(&mark);
-            } else {
-                primes.push(mark);
-            }
-            for i in 1..primes.len() {
-                let exclude = mark * primes[i];
-                if exclude > num{
-                    break;
-                }
-                _excludes.insert(exclude);
-            }
-            mark += 2;
-        }
-        return primes;
+        return true;
     }
 }
 
+fn prime_generator(num : i32) -> Vec<i32>{
+    if num > 7{
+        let mut _curr_fi:i32 = 5;
+        let mut _curr_se:i32 = 7;
+        let mut range_lst:Vec<i32> = vec![2, 3, 5, 7];
+
+
+        loop {
+            _curr_fi += 6;
+            if _curr_fi > num{
+                break;
+            }
+            if is_prime(&_curr_fi){
+                range_lst.push(_curr_fi.clone());
+            }
+            _curr_se += 6;
+            if _curr_se > num{
+                break;
+            }
+            if is_prime(&_curr_se){
+                range_lst.push(_curr_se.clone());
+            }
+        }
+
+        return range_lst;
+    } else if num == 7 {
+        return vec![2, 3, 5, 7];
+    } else if num >= 5 && num <= 6 {
+        return vec![2, 3, 5];
+    } else if num >= 3 && num <= 4{
+        return vec![2, 3];
+    } else if num == 2{
+        return vec![2];
+    } else {
+        return vec![];
+    }
+}
 
 fn prime_partition_ite(num : i32, ptr : usize, lst : &mut Vec<i32>, sample : &Vec<i32>, output : &mut Vec<Vec<i32>>, start_flag : bool){
     if !start_flag {

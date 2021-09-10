@@ -1,24 +1,26 @@
-def prime_generator(num):
-    if num < 2:
-        return []
-    elif num == 2:
-        return [2]
+def is_prime(n):
+    if n % 5 == 0 or n % 7 == 0:
+        return False
     else:
-        excludes = set()
+        return True
+
+
+def prime_generator(n):
+    if n > 7:
+        num = list(range(5, n + 1, 6)) + list(range(7, n + 1, 6))
+        primes = [x for x in num if is_prime(x)] + [2, 3, 5, 7]
+        primes.sort()
+    elif n == 7:
+        primes = [2, 3, 5, 7]
+    elif 5 <= n <= 6:
+        primes = [2, 3, 5]
+    elif 3 <= n <= 4:
+        primes = [2, 3]
+    elif n == 2:
         primes = [2]
-        mark = 3
-        while mark < num:
-            if excludes and mark in excludes:
-                excludes.remove(mark)
-            else:
-                primes.append(mark)
-            for i in range(1, len(primes)):
-                exclude = mark * primes[i]
-                if exclude > num:
-                    break
-                excludes.add(exclude)
-            mark += 2
-        return primes
+    else:
+        primes = []
+    return primes
 
 
 def prime_partition_ite(num, ptr, lst, sample, output):
