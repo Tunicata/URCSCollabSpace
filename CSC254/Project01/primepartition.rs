@@ -1,9 +1,14 @@
-fn is_prime(num : &i32) -> bool{
-    if num % 5 == 0 || num % 7 == 0{
-        return false;
-    } else {
-        return true;
+fn is_prime(n: &i32) -> bool {
+    let num = n.clone();
+    let sample = (num as f64).sqrt() as i32;
+
+    for i in 2..=sample {
+        if n % i == 0 {
+            return false;
+        }
     }
+
+    return true;
 }
 
 fn prime_generator(num : i32) -> Vec<i32>{
@@ -86,5 +91,5 @@ fn prime_partition(num : i32) -> Vec<Vec<i32>>{
 
 
 fn main() {
-    prime_partition(32);
+    prime_partition(170);
 }

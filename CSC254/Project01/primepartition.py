@@ -1,8 +1,13 @@
+import math
+
+
 def is_prime(n):
-    if n % 5 == 0 or n % 7 == 0:
-        return False
-    else:
-        return True
+    sample = math.ceil(math.sqrt(n))
+    while sample > 1:
+        if n % sample == 0:
+            return False
+        sample -= 1
+    return True
 
 
 def prime_generator(n):
