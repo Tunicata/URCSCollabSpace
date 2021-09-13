@@ -12,34 +12,30 @@ fn is_prime(n: &i32) -> bool {
 }
 
 fn prime_generator(num : i32) -> Vec<i32>{
-    if num > 7{
+    if num > 4{
         let mut _curr_fi:i32 = 5;
         let mut _curr_se:i32 = 7;
-        let mut range_lst:Vec<i32> = vec![2, 3, 5, 7];
+        let mut range_lst:Vec<i32> = vec![2, 3];
 
 
         loop {
-            _curr_fi += 6;
             if _curr_fi > num{
                 break;
             }
             if is_prime(&_curr_fi){
                 range_lst.push(_curr_fi.clone());
             }
-            _curr_se += 6;
+            _curr_fi += 6;
             if _curr_se > num{
                 break;
             }
             if is_prime(&_curr_se){
                 range_lst.push(_curr_se.clone());
             }
+            _curr_se += 6;
         }
 
         return range_lst;
-    } else if num == 7 {
-        return vec![2, 3, 5, 7];
-    } else if num >= 5 && num <= 6 {
-        return vec![2, 3, 5];
     } else if num >= 3 && num <= 4{
         return vec![2, 3];
     } else if num == 2{
@@ -91,5 +87,5 @@ fn prime_partition(num : i32) -> Vec<Vec<i32>>{
 
 
 fn main() {
-    prime_partition(170);
+    prime_partition(42);
 }
