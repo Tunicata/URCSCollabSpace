@@ -1,19 +1,18 @@
-This is a CSC254 Assignment 1:  Comparing Languages (Prime Partitions) developed by Liwei Jiang(ljiang14 / ljiang14@u.rochester.edu) and YuanChen Tao(ytao9/ ytao9@u.rochester.edu)
+CSC254 Assignment 1 :\
+YuanChen Tao(ytao9/ ytao9@u.rochester.edu) and
+Liwei Jiang(ljiang14 / ljiang14@u.rochester.edu)
 
-The Assignment 1.zip will contain the following files:
+The Assignment_1.zip contain the following files:
 
-	README.txt					This document
-	primepartition.adb			A primepartition caculator implimented by Ada
-	primepartition.hs			A primepartition caculator implimented by Haskell
-	primepartition.pl			A primepartition caculator implimented by Prolog
-	primepartition.py			A primepartition caculator implimented by Python
-	primepartition.rs			A primepartition caculator implimented by Rust
+README.txt				This document
+primepartition.adb			Ada implementation
+primepartition.hs			Haskell implementation
+primepartition.pl			Prolog implementation
+primepartition.py			Python implementation
+primepartition.rs			Rust implementation
 
-Except primepartition.pl, every implimentation have its main procedure which would read an input integer from the command line and print out the prime partitions of it.
+Only prolog implementation don't have main implementation, all other languages have their main implementation to read inputs from Scanner. 
 
-For Prolog you should follow the following steps and by input ";" to get all outputs:
-
-[ljiang14@cycle1 ~]$ swipl
 Welcome to SWI-Prolog (threaded, 64 bits, version 8.2.3)
 SWI-Prolog comes with ABSOLUTELY NO WARRANTY. This is free software.
 Please run ?- license. for legal details.
