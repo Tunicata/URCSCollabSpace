@@ -1,3 +1,4 @@
+use std::io;
 fn is_prime(n: &i32) -> bool {
     let num = n.clone();
     let sample = (num as f64).sqrt() as i32;
@@ -81,11 +82,18 @@ fn prime_partition_ite(num : i32, ptr : usize, lst : &mut Vec<i32>, sample : &Ve
 fn prime_partition(num : i32) -> Vec<Vec<i32>>{
     let mut output:Vec<Vec<i32>> = Vec::new();
     prime_partition_ite(num, 0, &mut Vec::new(), &prime_generator(num), &mut output, false);
-    println!("{:?}", output);
     return output;
 }
 
-
 fn main() {
-    prime_partition(42);
+    println! ("Please enter an Integer Larger than 1 to find its prime partitions: ");
+    let mut input_line = String::new();
+    io::stdin()
+        .read_line(&mut input_line)
+        .expect("Failed to read line");
+    let n: i32 = input_line.trim().parse().expect("Input not an integer");
+    let partitions : Vec<Vec<i32>> = prime_partition(n);
+    for partition in partitions.iter(){
+        println! ("{:?}", partition);
+    }
 }

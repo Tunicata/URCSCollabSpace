@@ -11,14 +11,10 @@ def is_prime(n):
 
 
 def prime_generator(n):
-    if n > 7:
+    if n > 4:
         num = list(range(5, n + 1, 6)) + list(range(7, n + 1, 6))
-        primes = [x for x in num if is_prime(x)] + [2, 3, 5, 7]
+        primes = [x for x in num if is_prime(x)] + [2, 3]
         primes.sort()
-    elif n == 7:
-        primes = [2, 3, 5, 7]
-    elif 5 <= n <= 6:
-        primes = [2, 3, 5]
     elif 3 <= n <= 4:
         primes = [2, 3]
     elif n == 2:
@@ -53,9 +49,15 @@ def prime_partition_ite(num, ptr, lst, sample, output):
 def prime_partition(num):
     output = []
     prime_partition_ite(num, -1, [], prime_generator(num), output)
-    print(output)
     return output
 
 
 if __name__ == '__main__':
-    prime_partition(32)
+    print("Please enter an Integer Larger than 1 to find its prime partitions: ", end="")
+    try:
+        n = int(input())
+        partitions = prime_partition(n)
+        for partition in partitions:
+            print(partition)
+    except ValueError:
+        print("Input not an integer")
