@@ -1,0 +1,42 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>CSC210 WEB PROGRAMMING Assignment 1</title>
+  <link rel="stylesheet" type="text/css" href="HW2.css">
+  <script type="text/javascript" src="HW2.js"></script>
+</head>
+<body>
+  <div id="main-cal" style="display: block;">
+    <h1 class="main_title">Chmod Calculator</h1>
+    <div id="sub-cal" style="width:200px; height:auto; display:inline-block;">
+      <h2 id="subtitle">Owner</h2>
+      <form name="form" method="post" action="">
+        <input type="checkbox" name="Owner" value="400" onclick="ChmodHandler()" >Read<br>
+        <input type="checkbox" name="Owner" value="200" onclick="ChmodHandler()" >Write<br>
+        <input type="checkbox" name="Owner" value="100" onclick="ChmodHandler()" >Execute<br>
+      </form>
+    </div>
+    <div id="sub-cal" style="width:200px; height:auto; display:inline-block;">
+      <h2 id="subtitle">Group</h2>
+      <form name="form" method="post" action="">
+        <input type="checkbox" name="Group" value="040" onclick="ChmodHandler()" >Read<br>
+        <input type="checkbox" name="Group" value="020" onclick="ChmodHandler()" >Write<br>
+        <input type="checkbox" name="Group" value="010" onclick="ChmodHandler()" >Execute<br>
+      </form>
+    </div>
+    <div id="sub-cal" style="width:200px; height:auto; display:inline-block;">
+      <h2 id="subtitle">Public</h2>
+      <form name="form" method="post" action="">
+        <input type="checkbox" name="Public" value="004" onclick="ChmodHandler()" >Read<br>
+        <input type="checkbox" name="Public" value="002" onclick="ChmodHandler()" >Write<br>
+        <input type="checkbox" name="Public" value="001" onclick="ChmodHandler()" >Execute<br>
+      </form>
+    </div>
+  </div>
+  <div id="main-cal" style="display: block;">
+  	<label for="name">Linux Permission: </label>
+	<input type="text" id="final" name="final" required minlength="4" maxlength="8" size="10" value = "000">
+	<input type="text" id="str" name="str" required minlength="4" maxlength="8" size="10" value= "---------">
+  </div>
+</body>
+</html>
