@@ -1,0 +1,7 @@
+# VSCode config
+.vscode
+
+# CSC254 Project 2 binary files
+CSC254/Project02/parser_2021/._*
+CSC254/Project02/parser_2021/*.o
+CSC254/Project02/parser_2021/parse
