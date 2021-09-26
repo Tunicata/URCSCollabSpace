@@ -15,17 +15,13 @@ using namespace std;
 
 const string names[] = {"read", "write", "id", "literal", "gets", "add",
                        "sub", "mul", "div", "lparen", "rparen", "eof",
-                       "if", "fi", "do", "od", "check", "eqeq", "neq", "gt", "st", "gte", "ste"};
+                       "if", "fi", "do", "od", "check", "eqeq", "neq", "gt", "st", "gte", "ste", "unknown"};
 
 static token upcoming_token;
-static bool error_flag;
 static stack<string> preop_handler;
 string tab = "";
 
-#define ERROR(FN) {\
-    del();\
-    FN();\
-}
+#define ERROR(FN) {del(); FN();}
 
 string match(token expected);
 string error(token r, token l) ;

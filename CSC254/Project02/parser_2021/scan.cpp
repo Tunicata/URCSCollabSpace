@@ -48,7 +48,8 @@ token scan() {
         case ':':
             if ((c = getchar()) != '=') {
                 cerr << "expected '=' after ':', got '" << (char)c << "(0x" << hex << c << ")'" << endl;
-                exit(1);
+                c = getchar();
+                return t_unknown;
             } else {
                 c = getchar();
                 return t_gets;
@@ -63,7 +64,8 @@ token scan() {
         case '=':
             if ((c = getchar()) != '=') {
                 cerr << "expected '=' after '=', got '" << (char)c << "(0x" << hex << c << ")'" << endl;
-                exit(1);
+                c = getchar();
+                return t_unknown;
             } else {
                 c = getchar();
                 return t_eqeq;
@@ -92,6 +94,7 @@ token scan() {
             break;
         default:
             cerr << "unexpected character '" << (char)c << "(0x" << hex << c << ")'" << endl;
-            exit(1);
+            c = getchar();
+            return t_unknown;
     }
 }
