@@ -1,0 +1,30 @@
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>CSC210 WEB PROGRAMMING Assignment 4</title>
+</head>
+<body>
+    <h1 class="main_title" style="text-align: center;">User Profile</h1>
+    <ul>
+        <li>First Name: {{ users[user_id]['fname'] }}</li>
+        <li>Last Name: {{ users[user_id]['lname'] }}</li>
+        <li>Email Address: {{ users[user_id]['email'] }}</li>
+        <li>Date of Birth: {{ users[user_id]['dob'] }}</li>
+        <li>List of Friends: </li>
+        <ul>
+	        {% for friend in users[user_id]['friends'] %}
+	        	<li>
+        			{% set friend = friend | string() %}
+	        		<a href= "{{ url_for('user_info', user_id=friend) }}"> {{friend}} </a>
+        		    {% if users[friend] %}
+				        : {{ users[friend]['fname'] }} {{ users[friend]['lname'] }}
+				    {% else %}
+				        : Unknown User
+				    {% endif %}
+	        	</li>
+	    	{% endfor %}
+    	</ul>
+    </ul>
+    <button onclick="window.location.href= window.location.href + '/Edit'" type="button" id="add">Edit Profile</button>
+</body>
+</html>

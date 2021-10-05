@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>CSC210 WEB PROGRAMMING Assignment 4</title>
+</head>
+<body>
+<h1 class="main_title" style="text-align: center;">Edit User Profile</h1>
+<form method="post" novalidate style="padding:0  50px">
+    {% for item in form %}
+    <p>{{item.label}}: {{item}} {{item.errors[0] }}</p>
+    {% endfor %}
+    <input type="submit" value="update">
+</form>
+</body>
+</html>
