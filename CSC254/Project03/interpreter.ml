@@ -717,11 +717,11 @@ and interpret_read (id:string) (mem:memory)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
   match inp with
-  | [] -> raise (Failure "program expect inputs")
+  | [] -> raise (Failure "unexpected end of input")
   | h::t -> 
       try let i = int_of_string h in
         (Good, declare_var mem (id, i), t, outp)
-      with Failure _ -> raise (Failure "unexpected input value")
+      with Failure _ -> raise (Failure "non-numeric input")
 
 and interpret_write (expr:ast_e) (mem:memory)
                     (inp:string list) (outp:string list)
@@ -747,14 +747,15 @@ and interpret_do (sl:ast_sl) (mem:memory)
                  (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (Done, mem, inp, outp)
-  (* let (check, sl) = sl in
-  let (s, _) = interpret_check 
-    match sl with
+  match sl with
   | [] -> (Good, mem, inp, outp)
-  | s::sl ->
-      let (_, m, i, o) = interpret_s s mem inp outp in
-      interpret_sl sl m i o *)
+  | cond::tail ->
+    let (status, _, _, _) = interpret_s cond mem inp outp in
+    match status with
+    | Good -> let (status, new_mem, new_inp, new_outp) = interpret_sl tail mem inp outp in
+              interpret_do sl new_mem new_inp new_outp
+    | Done -> (Good, mem, inp, outp)
+
 
 and interpret_check (cond:ast_e) (mem:memory)
                     (inp:string list) (outp:string list)
@@ -768,8 +769,47 @@ and interpret_check (cond:ast_e) (mem:memory)
   | Error str -> raise (Failure str)
 
 and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
-  (* your code should replace the following line *)
-  (Error("code not written yet"), mem)
+(* your code should replace the following line *)
+  match expr with
+  | AST_num num -> (Value(int_of_string num), mem)
+  | AST_id id -> 
+      (Value(get_var mem id), mark_var mem id)
+  | AST_binop (op, e1, e2) -> 
+    let (v1, mem) = interpret_expr e1 mem in
+    let (v2, mem) = interpret_expr e2 mem in
+    match v1 with
+    | Value n1 -> (
+      match v2 with
+      | Value n2 -> (
+        match op with 
+        | "+" -> (Value(n1 + n2), mem)
+        | "-" -> (Value(n1 - n2), mem)
+        | "*" -> (Value(n1 * n2), mem)
+        | "/" -> 
+            if n2 = 0 then raise (Failure "divided by zero")
+            else (Value(n1/n2), mem)
+        | "==" -> 
+            if n1 = n2 then (Value(1), mem)
+            else (Value(0), mem)
+        | "!=" -> 
+            if n1 <> n2 then (Value(1), mem)
+            else (Value(0), mem)
+        | ">" -> 
+            if n1 > n2 then (Value(1), mem)
+            else (Value(0), mem)
+        | "<" -> 
+            if n1 < n2 then (Value(1), mem)
+            else (Value(0), mem)
+        | ">=" -> 
+            if n1 >= n2 then (Value(1), mem)
+            else (Value(0), mem)
+        | "<=" -> 
+            if n1 <= n2 then (Value(1), mem)
+            else (Value(0), mem)
+      )
+      | Error str2 -> raise (Failure str2)
+    )
+    | Error str1 -> raise (Failure str1)
 
 and declare_var (mem:memory) ((name, value):(string * int)) : memory =
   match mem with
@@ -803,10 +843,9 @@ and remove_var (mem:memory) (name:string) : memory =
   | _ -> []
 and mark_var (mem:memory) (name:string) : memory =
   match mem with
-  |  (str, curr_val, status)::rest ->
-      if name = str then [(str, curr_val, true)] @ rest
-      else [(str, curr_val, status)] @ remove_var mem name
-  | _ -> [];;
+  | (str, curr_val, status)::rest ->
+      if name = str then [(name, curr_val, true)] @ rest
+      else [(str, curr_val, status)] @ mark_var rest name;;
 
 (*******************************************************************
     Testing
@@ -822,7 +861,7 @@ let ecg_run prog inp =
   interpret (ast_ize_prog (parse ecg_parse_table prog)) inp;;
 
 let main () =
-  (* print_string (interpret sum_ave_syntax_tree "4 6");
+  print_string (interpret sum_ave_syntax_tree "4 6");
     (* should print "10 5" *)
   print_newline ();
   print_string (interpret primes_syntax_tree "10");
@@ -830,7 +869,7 @@ let main () =
   print_newline ();
   print_string (interpret sum_ave_syntax_tree "4 foo");
     (* should print "non-numeric input" *)
-  print_newline (); *)
+  print_newline ();
   print_string (ecg_run "write 3 write 2 / 0" "");
     (* should print "3 divide by zero" *)
   print_newline ();
@@ -842,4 +881,4 @@ let main () =
   print_newline ();;
 
 (* Execute function "main" iff run as a stand-alone program. *)
-if !Sys.interactive then () else main ();;
+(* if !Sys.interactive then () else main ();; *)
