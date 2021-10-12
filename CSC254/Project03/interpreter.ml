@@ -682,7 +682,6 @@ and interpret_sl (sl:ast_sl) (mem:memory)
     : status * memory * string list * string list =
     (*  ok?   new_mem   new_input     new_output *)
   (* your code should replace the following line *)
-  (* (Good, mem, inp, outp) *)
   match sl with
   | [] -> (Good, mem, inp, outp)
   | s::sl ->
@@ -708,47 +707,106 @@ and interpret_assign (lhs:string) (rhs:ast_e) (mem:memory)
                      (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (* (Good, mem, inp, outp) *)
   let (v, m) = interpret_expr rhs mem in
   match v with
-  | Value x ->
-      if in_mem m lhs then (true, set_mem_val m (lhs, x), inp, outp)
-      else (true, [(lhs, x, false)]@m, inp, outp)
+  | Value curr_val -> (Good, declare_var m (lhs, curr_val), inp, outp)
   | Error str -> raise (Failure str)
 
 and interpret_read (id:string) (mem:memory)
                    (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (Good, mem, inp, outp)
+  match inp with
+  | [] -> raise (Failure "program expect inputs")
+  | h::t -> 
+      try let i = int_of_string h in
+        (Good, declare_var mem (id, i), t, outp)
+      with Failure _ -> raise (Failure "unexpected input value")
 
 and interpret_write (expr:ast_e) (mem:memory)
                     (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (Good, mem, inp, outp)
+  let (v, m) = interpret_expr expr mem in
+  match v with
+  | Value curr_val -> (Good, m, inp, outp@[string_of_int curr_val])
+  | Error str -> raise (Failure str)
 
 and interpret_if (cond:ast_e) (sl:ast_sl) (mem:memory)
                  (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (Good, mem, inp, outp)
+  let (v, m) = interpret_expr cond mem in
+  match v with
+  | Value x ->
+      if x = 1 then interpret_sl sl m inp outp
+      else (Good, m, inp, outp)
+  | Error str -> raise (Failure str)
 
 and interpret_do (sl:ast_sl) (mem:memory)
                  (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (Good, mem, inp, outp)
+  (Done, mem, inp, outp)
+  (* let (check, sl) = sl in
+  let (s, _) = interpret_check 
+    match sl with
+  | [] -> (Good, mem, inp, outp)
+  | s::sl ->
+      let (_, m, i, o) = interpret_s s mem inp outp in
+      interpret_sl sl m i o *)
 
 and interpret_check (cond:ast_e) (mem:memory)
                     (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
-  (Done, mem, inp, outp)
+  let (v, m) = interpret_expr cond mem in
+  match v with
+  | Value x ->
+      if x = 1 then (Good, m, inp, outp)
+      else (Done, m, inp, outp)
+  | Error str -> raise (Failure str)
 
 and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
   (* your code should replace the following line *)
   (Error("code not written yet"), mem)
+
+and declare_var (mem:memory) ((name, value):(string * int)) : memory =
+  match mem with
+  | (str, curr_val, status)::rest ->
+      if name = str then [(name, value, false)] @ rest
+      else [(str, curr_val, status)] @ declare_var rest (name, value)
+  | _ -> [(name, value, false)]
+and set_var (mem:memory) ((name, new_val):(string * int)) : memory =
+  match mem with
+  |  (str, curr_val, status)::rest ->
+      if name = str then [(name, new_val, status)] @ rest
+      else [(str, curr_val, status)] @ set_var rest (name, new_val)
+  | _ -> raise (Failure ("variable " ^ name ^ " use before declare"))
+and get_var (mem:memory) (name:string) : int =
+  match mem with
+  | (str, curr_val, status)::rest ->
+      if name = str then curr_val
+      else get_var rest name
+  | _ -> raise (Failure ("variable " ^ name ^ " use before declare"))
+and check_var (mem:memory) (name:string) : bool =
+  match mem with
+  | (str, curr_val, status)::rest ->
+      if name = str then true
+      else check_var rest name
+  | _ -> false
+and remove_var (mem:memory) (name:string) : memory =
+  match mem with
+  |  (str, curr_val, status)::rest ->
+      if name = str then rest
+      else [(str, curr_val, status)] @ remove_var mem name
+  | _ -> []
+and mark_var (mem:memory) (name:string) : memory =
+  match mem with
+  |  (str, curr_val, status)::rest ->
+      if name = str then [(str, curr_val, true)] @ rest
+      else [(str, curr_val, status)] @ remove_var mem name
+  | _ -> [];;
 
 (*******************************************************************
     Testing
@@ -764,7 +822,7 @@ let ecg_run prog inp =
   interpret (ast_ize_prog (parse ecg_parse_table prog)) inp;;
 
 let main () =
-  print_string (interpret sum_ave_syntax_tree "4 6");
+  (* print_string (interpret sum_ave_syntax_tree "4 6");
     (* should print "10 5" *)
   print_newline ();
   print_string (interpret primes_syntax_tree "10");
@@ -772,7 +830,7 @@ let main () =
   print_newline ();
   print_string (interpret sum_ave_syntax_tree "4 foo");
     (* should print "non-numeric input" *)
-  print_newline ();
+  print_newline (); *)
   print_string (ecg_run "write 3 write 2 / 0" "");
     (* should print "3 divide by zero" *)
   print_newline ();
