@@ -685,8 +685,10 @@ and interpret_sl (sl:ast_sl) (mem:memory)
   match sl with
   | [] -> (Good, mem, inp, outp)
   | s::sl ->
-      let (_, m, i, o) = interpret_s s mem inp outp in
-      interpret_sl sl m i o
+      let (status, new_mem, new_inp, new_outp) = interpret_s s mem inp outp in
+      match status with
+      | Good -> interpret_sl sl new_mem new_inp new_outp
+      | Bad -> (status, new_mem, new_inp, new_outp)
 
 (* NB: the following routine is complete.  You can call it on any
    statement node and it figures out what more specific case to invoke.
@@ -710,18 +712,18 @@ and interpret_assign (lhs:string) (rhs:ast_e) (mem:memory)
   let (v, m) = interpret_expr rhs mem in
   match v with
   | Value curr_val -> (Good, declare_var m (lhs, curr_val), inp, outp)
-  | Error str -> raise (Failure str)
+  | Error str -> (Bad, m, inp, outp@[str])
 
 and interpret_read (id:string) (mem:memory)
                    (inp:string list) (outp:string list)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
   match inp with
-  | [] -> raise (Failure "unexpected end of input")
+  | [] -> (Bad, m, inp, outp@["unexpected end of input"])
   | h::t -> 
       try let i = int_of_string h in
         (Good, declare_var mem (id, i), t, outp)
-      with Failure _ -> raise (Failure "non-numeric input")
+      with Failure _ -> (Bad, m, inp, outp@["non-numeric input"])
 
 and interpret_write (expr:ast_e) (mem:memory)
                     (inp:string list) (outp:string list)
@@ -730,7 +732,7 @@ and interpret_write (expr:ast_e) (mem:memory)
   let (v, m) = interpret_expr expr mem in
   match v with
   | Value curr_val -> (Good, m, inp, outp@[string_of_int curr_val])
-  | Error str -> raise (Failure str)
+  | Error str -> (Bad, m, inp, outp@[str])
 
 and interpret_if (cond:ast_e) (sl:ast_sl) (mem:memory)
                  (inp:string list) (outp:string list)
@@ -741,7 +743,7 @@ and interpret_if (cond:ast_e) (sl:ast_sl) (mem:memory)
   | Value x ->
       if x = 1 then interpret_sl sl m inp outp
       else (Good, m, inp, outp)
-  | Error str -> raise (Failure str)
+  | Error str -> (Bad, m, inp, outp@[str])
 
 and interpret_do (sl:ast_sl) (mem:memory)
                  (inp:string list) (outp:string list)
@@ -755,6 +757,7 @@ and interpret_do (sl:ast_sl) (mem:memory)
     | Good -> let (status, new_mem, new_inp, new_outp) = interpret_sl tail mem inp outp in
               interpret_do sl new_mem new_inp new_outp
     | Done -> (Good, mem, inp, outp)
+    | Bad -> (Bad, mem, inp, outp)
 
 
 and interpret_check (cond:ast_e) (mem:memory)
@@ -766,14 +769,14 @@ and interpret_check (cond:ast_e) (mem:memory)
   | Value x ->
       if x = 1 then (Good, m, inp, outp)
       else (Done, m, inp, outp)
-  | Error str -> raise (Failure str)
+  | Error str -> (Bad, m, inp, outp@[str])
 
 and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
 (* your code should replace the following line *)
   match expr with
   | AST_num num -> (Value(int_of_string num), mem)
   | AST_id id -> 
-      (Value(get_var mem id), mark_var mem id)
+      (get_var mem id, mark_var mem id)
   | AST_binop (op, e1, e2) -> 
     let (v1, mem) = interpret_expr e1 mem in
     let (v2, mem) = interpret_expr e2 mem in
@@ -786,7 +789,7 @@ and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
         | "-" -> (Value(n1 - n2), mem)
         | "*" -> (Value(n1 * n2), mem)
         | "/" -> 
-            if n2 = 0 then raise (Failure "divided by zero")
+            if n2 = 0 then (Error ("divided by zero"), mem)
             else (Value(n1/n2), mem)
         | "==" -> 
             if n1 = n2 then (Value(1), mem)
@@ -807,9 +810,9 @@ and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
             if n1 <= n2 then (Value(1), mem)
             else (Value(0), mem)
       )
-      | Error str2 -> raise (Failure str2)
+      | Error str2 -> (Error (str2), mem)
     )
-    | Error str1 -> raise (Failure str1)
+    | Error str1 -> (Error (str1), mem)
 
 and declare_var (mem:memory) ((name, value):(string * int)) : memory =
   match mem with
@@ -822,13 +825,13 @@ and set_var (mem:memory) ((name, new_val):(string * int)) : memory =
   |  (str, curr_val, status)::rest ->
       if name = str then [(name, new_val, status)] @ rest
       else [(str, curr_val, status)] @ set_var rest (name, new_val)
-  | _ -> raise (Failure ("variable " ^ name ^ " use before declare"))
-and get_var (mem:memory) (name:string) : int =
+  | _ -> (Error ("variable " ^ name ^ " use before declare"))
+and get_var (mem:memory) (name:string) : value =
   match mem with
   | (str, curr_val, status)::rest ->
-      if name = str then curr_val
+      if name = str then Value (int_of_string curr_val)
       else get_var rest name
-  | _ -> raise (Failure ("variable " ^ name ^ " use before declare"))
+  | _ -> (Error ("variable " ^ name ^ " use before declare"))
 and check_var (mem:memory) (name:string) : bool =
   match mem with
   | (str, curr_val, status)::rest ->
