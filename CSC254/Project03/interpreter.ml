@@ -719,11 +719,11 @@ and interpret_read (id:string) (mem:memory)
     : status * memory * string list * string list =
   (* your code should replace the following line *)
   match inp with
-  | [] -> (Bad, m, inp, outp@["unexpected end of input"])
+  | [] -> (Bad, mem, inp, outp@["unexpected end of input"])
   | h::t -> 
       try let i = int_of_string h in
         (Good, declare_var mem (id, i), t, outp)
-      with Failure _ -> (Bad, m, inp, outp@["non-numeric input"])
+      with Failure _ -> (Bad, mem, inp, outp@["non-numeric input"])
 
 and interpret_write (expr:ast_e) (mem:memory)
                     (inp:string list) (outp:string list)
@@ -820,16 +820,10 @@ and declare_var (mem:memory) ((name, value):(string * int)) : memory =
       if name = str then [(name, value, false)] @ rest
       else [(str, curr_val, status)] @ declare_var rest (name, value)
   | _ -> [(name, value, false)]
-and set_var (mem:memory) ((name, new_val):(string * int)) : memory =
-  match mem with
-  |  (str, curr_val, status)::rest ->
-      if name = str then [(name, new_val, status)] @ rest
-      else [(str, curr_val, status)] @ set_var rest (name, new_val)
-  | _ -> (Error ("variable " ^ name ^ " use before declare"))
 and get_var (mem:memory) (name:string) : value =
   match mem with
   | (str, curr_val, status)::rest ->
-      if name = str then Value (int_of_string curr_val)
+      if name = str then Value (curr_val)
       else get_var rest name
   | _ -> (Error ("variable " ^ name ^ " use before declare"))
 and check_var (mem:memory) (name:string) : bool =
@@ -848,7 +842,8 @@ and mark_var (mem:memory) (name:string) : memory =
   match mem with
   | (str, curr_val, status)::rest ->
       if name = str then [(name, curr_val, true)] @ rest
-      else [(str, curr_val, status)] @ mark_var rest name;;
+      else [(str, curr_val, status)] @ mark_var rest name
+  | _ -> [];;
 
 (*******************************************************************
     Testing
