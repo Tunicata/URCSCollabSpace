@@ -674,9 +674,11 @@ type status =
 *)
 let rec interpret (ast:ast_sl) (full_input:string) : string =
   let inp = split (regexp "[ \t\n\r]+") full_input in
-  let (_, _, _, outp) = interpret_sl ast [] inp [] in
-    (fold_left (str_cat " ") "" outp) ^ "\n"
-
+  let (status, mem, _, outp) = interpret_sl ast [] inp [] in
+  match status with
+  | Good -> (fold_left (str_cat " ") "" outp) ^ "\n" ^ (warn_var mem "the following variables are declared but never used:") ^ "\n"
+  | _ -> (fold_left (str_cat " ") "" outp) ^ "\n"
+    
 and interpret_sl (sl:ast_sl) (mem:memory)
                  (inp:string list) (outp:string list)
     : status * memory * string list * string list =
@@ -685,10 +687,10 @@ and interpret_sl (sl:ast_sl) (mem:memory)
   match sl with
   | [] -> (Good, mem, inp, outp)
   | s::sl ->
-      let (status, new_mem, new_inp, new_outp) = interpret_s s mem inp outp in
-      match status with
-      | Good -> interpret_sl sl new_mem new_inp new_outp
-      | Bad -> (status, new_mem, new_inp, new_outp)
+    let (status, new_mem, new_inp, new_outp) = interpret_s s mem inp outp in
+    match status with
+    | Good -> interpret_sl sl new_mem new_inp new_outp
+    | Bad -> (status, new_mem, new_inp, new_outp)
 
 (* NB: the following routine is complete.  You can call it on any
    statement node and it figures out what more specific case to invoke.
@@ -741,8 +743,8 @@ and interpret_if (cond:ast_e) (sl:ast_sl) (mem:memory)
   let (v, m) = interpret_expr cond mem in
   match v with
   | Value x ->
-      if x = 1 then interpret_sl sl m inp outp
-      else (Good, m, inp, outp)
+    if x = 1 then interpret_sl sl m inp outp
+    else (Good, m, inp, outp)
   | Error str -> (Bad, m, inp, outp@[str])
 
 and interpret_do (sl:ast_sl) (mem:memory)
@@ -775,8 +777,7 @@ and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
 (* your code should replace the following line *)
   match expr with
   | AST_num num -> (Value(int_of_string num), mem)
-  | AST_id id -> 
-      (get_var mem id, mark_var mem id)
+  | AST_id id -> (get_var mem id, mark_var mem id)
   | AST_binop (op, e1, e2) -> 
     let (v1, mem) = interpret_expr e1 mem in
     let (v2, mem) = interpret_expr e2 mem in
@@ -789,26 +790,26 @@ and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
         | "-" -> (Value(n1 - n2), mem)
         | "*" -> (Value(n1 * n2), mem)
         | "/" -> 
-            if n2 = 0 then (Error ("divided by zero"), mem)
-            else (Value(n1/n2), mem)
+          if n2 = 0 then (Error ("divided by zero"), mem)
+          else (Value(n1/n2), mem)
         | "==" -> 
-            if n1 = n2 then (Value(1), mem)
-            else (Value(0), mem)
+          if n1 = n2 then (Value(1), mem)
+          else (Value(0), mem)
         | "!=" -> 
-            if n1 <> n2 then (Value(1), mem)
-            else (Value(0), mem)
+          if n1 <> n2 then (Value(1), mem)
+          else (Value(0), mem)
         | ">" -> 
-            if n1 > n2 then (Value(1), mem)
-            else (Value(0), mem)
+          if n1 > n2 then (Value(1), mem)
+          else (Value(0), mem)
         | "<" -> 
-            if n1 < n2 then (Value(1), mem)
-            else (Value(0), mem)
+          if n1 < n2 then (Value(1), mem)
+          else (Value(0), mem)
         | ">=" -> 
-            if n1 >= n2 then (Value(1), mem)
-            else (Value(0), mem)
+          if n1 >= n2 then (Value(1), mem)
+          else (Value(0), mem)
         | "<=" -> 
-            if n1 <= n2 then (Value(1), mem)
-            else (Value(0), mem)
+          if n1 <= n2 then (Value(1), mem)
+          else (Value(0), mem)
       )
       | Error str2 -> (Error (str2), mem)
     )
@@ -817,33 +818,39 @@ and interpret_expr (expr:ast_e) (mem:memory) : value * memory =
 and declare_var (mem:memory) ((name, value):(string * int)) : memory =
   match mem with
   | (str, curr_val, status)::rest ->
-      if name = str then [(name, value, false)] @ rest
-      else [(str, curr_val, status)] @ declare_var rest (name, value)
+    if name = str then [(name, value, true)] @ rest
+    else [(str, curr_val, status)] @ declare_var rest (name, value)
   | _ -> [(name, value, false)]
 and get_var (mem:memory) (name:string) : value =
   match mem with
   | (str, curr_val, status)::rest ->
-      if name = str then Value (curr_val)
-      else get_var rest name
+    if name = str then Value (curr_val)
+    else get_var rest name
   | _ -> (Error ("variable " ^ name ^ " use before declare"))
 and check_var (mem:memory) (name:string) : bool =
   match mem with
   | (str, curr_val, status)::rest ->
-      if name = str then true
-      else check_var rest name
+    if name = str then true
+    else check_var rest name
   | _ -> false
 and remove_var (mem:memory) (name:string) : memory =
   match mem with
   |  (str, curr_val, status)::rest ->
-      if name = str then rest
-      else [(str, curr_val, status)] @ remove_var mem name
+    if name = str then rest
+    else [(str, curr_val, status)] @ remove_var mem name
   | _ -> []
 and mark_var (mem:memory) (name:string) : memory =
   match mem with
   | (str, curr_val, status)::rest ->
-      if name = str then [(name, curr_val, true)] @ rest
-      else [(str, curr_val, status)] @ mark_var rest name
-  | _ -> [];;
+    if name = str then [(name, curr_val, true)] @ rest
+    else [(str, curr_val, status)] @ mark_var rest name
+  | _ -> []
+and warn_var (mem:memory) (warning:string) : string =
+  match mem with
+  | (str, curr_val, status)::rest ->
+    if status = false then (warn_var rest (warning ^ " " ^ str))
+    else (warn_var rest warning)
+  | _ -> warning;;
 
 (*******************************************************************
     Testing
@@ -876,6 +883,9 @@ let main () =
   print_newline ();
   print_string (ecg_run "read a read b" "3");
     (* should print "unexpected end of input" *)
+  print_newline ();
+  print_string (ecg_run "read a read b write a" "3 4");
+    (* should print "3\n the following variables are declared but never used: b" *)
   print_newline ();;
 
 (* Execute function "main" iff run as a stand-alone program. *)
