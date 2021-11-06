@@ -47,6 +47,7 @@ end
 
 # Extract Executable Information
 path = "#{ARGV[0]}/#{ARGV[1]}"
+puts path
 dwarf_info = %x(llvm-dwarfdump --debug-line #{path}).split("\n")
 objdump_info = %x(objdump -d #{path}).split("\n")
 

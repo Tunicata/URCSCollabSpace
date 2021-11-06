@@ -1,0 +1,388 @@
+sample/merge:	file format elf64-x86-64
+
+.debug_line contents:
+debug_line[0x00000000]
+Line table prologue:
+    total_length: 0x00000543
+          format: DWARF32
+         version: 3
+ prologue_length: 0x000003ef
+ min_inst_length: 1
+ default_is_stmt: 1
+       line_base: -5
+      line_range: 14
+     opcode_base: 13
+standard_opcode_lengths[DW_LNS_copy] = 0
+standard_opcode_lengths[DW_LNS_advance_pc] = 1
+standard_opcode_lengths[DW_LNS_advance_line] = 1
+standard_opcode_lengths[DW_LNS_set_file] = 1
+standard_opcode_lengths[DW_LNS_set_column] = 1
+standard_opcode_lengths[DW_LNS_negate_stmt] = 0
+standard_opcode_lengths[DW_LNS_set_basic_block] = 0
+standard_opcode_lengths[DW_LNS_const_add_pc] = 0
+standard_opcode_lengths[DW_LNS_fixed_advance_pc] = 1
+standard_opcode_lengths[DW_LNS_set_prologue_end] = 0
+standard_opcode_lengths[DW_LNS_set_epilogue_begin] = 0
+standard_opcode_lengths[DW_LNS_set_isa] = 1
+include_directories[  1] = "/usr/include"
+include_directories[  2] = "/usr/include/x86_64-linux-gnu/bits"
+include_directories[  3] = "/usr/include/x86_64-linux-gnu/sys"
+include_directories[  4] = "/usr/include/x86_64-linux-gnu/gnu"
+include_directories[  5] = "/usr/lib/gcc/x86_64-linux-gnu/10/include"
+include_directories[  6] = "/usr/include/x86_64-linux-gnu/bits/types"
+file_names[  1]:
+           name: "merge1.c"
+      dir_index: 0
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  2]:
+           name: "merge2.c"
+      dir_index: 0
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  3]:
+           name: "stdc-predef.h"
+      dir_index: 1
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  4]:
+           name: "stdio.h"
+      dir_index: 1
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  5]:
+           name: "libc-header-start.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  6]:
+           name: "features.h"
+      dir_index: 1
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  7]:
+           name: "cdefs.h"
+      dir_index: 3
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  8]:
+           name: "wordsize.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[  9]:
+           name: "long-double.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 10]:
+           name: "stubs.h"
+      dir_index: 4
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 11]:
+           name: "stubs-64.h"
+      dir_index: 4
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 12]:
+           name: "stddef.h"
+      dir_index: 5
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 13]:
+           name: "stdarg.h"
+      dir_index: 5
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 14]:
+           name: "types.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 15]:
+           name: "timesize.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 16]:
+           name: "typesizes.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 17]:
+           name: "time64.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 18]:
+           name: "__fpos_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 19]:
+           name: "__mbstate_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 20]:
+           name: "__fpos64_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 21]:
+           name: "__FILE.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 22]:
+           name: "FILE.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 23]:
+           name: "struct_FILE.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 24]:
+           name: "stdio_lim.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 25]:
+           name: "floatn.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 26]:
+           name: "floatn-common.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 27]:
+           name: "stdlib.h"
+      dir_index: 1
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 28]:
+           name: "waitflags.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 29]:
+           name: "waitstatus.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 30]:
+           name: "types.h"
+      dir_index: 3
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 31]:
+           name: "clock_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 32]:
+           name: "clockid_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 33]:
+           name: "time_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 34]:
+           name: "timer_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 35]:
+           name: "stdint-intn.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 36]:
+           name: "endian.h"
+      dir_index: 1
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 37]:
+           name: "endian.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 38]:
+           name: "endianness.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 39]:
+           name: "byteswap.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 40]:
+           name: "uintn-identity.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 41]:
+           name: "select.h"
+      dir_index: 3
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 42]:
+           name: "select.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 43]:
+           name: "sigset_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 44]:
+           name: "__sigset_t.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 45]:
+           name: "struct_timeval.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 46]:
+           name: "struct_timespec.h"
+      dir_index: 6
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 47]:
+           name: "pthreadtypes.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 48]:
+           name: "thread-shared-types.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 49]:
+           name: "pthreadtypes-arch.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 50]:
+           name: "struct_mutex.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 51]:
+           name: "struct_rwlock.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 52]:
+           name: "alloca.h"
+      dir_index: 1
+       mod_time: 0x00000000
+         length: 0x00000000
+file_names[ 53]:
+           name: "stdlib-float.h"
+      dir_index: 2
+       mod_time: 0x00000000
+         length: 0x00000000
+
+Address            Line   Column File   ISA Discriminator Flags
+------------------ ------ ------ ------ --- ------------- -------------
+0x00000000000011a9      9      1      1   0             0  is_stmt
+0x00000000000011ca      9      1      1   0             0  is_stmt
+0x00000000000011df     11     13      1   0             0  is_stmt
+0x00000000000011e5     11      6      1   0             0  is_stmt
+0x00000000000011eb     12      6      1   0             0  is_stmt
+0x00000000000011f4     15      2      1   0             0  is_stmt
+0x00000000000011f7     15      6      1   0             0  is_stmt
+0x00000000000012a5     15      2      1   0             0  is_stmt
+0x00000000000012a8     15     13      1   0             0  is_stmt
+0x0000000000001356     18      9      1   0             0  is_stmt
+0x000000000000135d     18      2      1   0             0  is_stmt
+0x000000000000135f     19     16      1   0             3  is_stmt
+0x0000000000001369     19     13      1   0             3  is_stmt
+0x000000000000137a     19      8      1   0             3  is_stmt
+0x0000000000001387     18     23      1   0             3  is_stmt
+0x000000000000138b     18      2      1   0             1  is_stmt
+0x0000000000001393     20      9      1   0             0  is_stmt
+0x000000000000139a     20      2      1   0             0  is_stmt
+0x000000000000139c     21     16      1   0             3  is_stmt
+0x00000000000013a2     21     20      1   0             3  is_stmt
+0x00000000000013a9     21     13      1   0             3  is_stmt
+0x00000000000013ba     21      8      1   0             3  is_stmt
+0x00000000000013c7     20     23      1   0             3  is_stmt
+0x00000000000013cb     20      2      1   0             1  is_stmt
+0x00000000000013d3     24      4      1   0             0  is_stmt
+0x00000000000013da     25      4      1   0             0  is_stmt
+0x00000000000013e1     26      4      1   0             0  is_stmt
+0x00000000000013e7     27      8      1   0             0  is_stmt
+0x00000000000013e9     28      8      1   0             0  is_stmt
+0x00000000000013f6     28     16      1   0             0  is_stmt
+0x0000000000001403     28      6      1   0             0  is_stmt
+0x0000000000001407     29      7      1   0             0  is_stmt
+0x000000000000141c     29     14      1   0             0  is_stmt
+0x0000000000001429     29     11      1   0             0  is_stmt
+0x000000000000142b     30      5      1   0             0  is_stmt
+0x0000000000001431     33      7      1   0             0  is_stmt
+0x0000000000001446     33     14      1   0             0  is_stmt
+0x0000000000001453     33     11      1   0             0  is_stmt
+0x0000000000001455     34      5      1   0             0  is_stmt
+0x0000000000001459     36      4      1   0             0  is_stmt
+0x000000000000145d     27      8      1   0             0  is_stmt
+0x0000000000001465     27     16      1   0             1  is_stmt
+0x0000000000001471     41      8      1   0             0  is_stmt
+0x0000000000001473     42      6      1   0             0  is_stmt
+0x0000000000001488     42     13      1   0             0  is_stmt
+0x0000000000001495     42     10      1   0             0  is_stmt
+0x0000000000001497     43      4      1   0             0  is_stmt
+0x000000000000149b     44      4      1   0             0  is_stmt
+0x000000000000149f     41      8      1   0             0  is_stmt
+0x00000000000014a7     49      8      1   0             0  is_stmt
+0x00000000000014a9     50      6      1   0             0  is_stmt
+0x00000000000014be     50     13      1   0             0  is_stmt
+0x00000000000014cb     50     10      1   0             0  is_stmt
+0x00000000000014cd     51      4      1   0             0  is_stmt
+0x00000000000014d1     52      4      1   0             0  is_stmt
+0x00000000000014d5     49      8      1   0             0  is_stmt
+0x00000000000014e0     54      1      1   0             0  is_stmt
+0x0000000000001503      9      1      2   0             0  is_stmt
+0x0000000000001519     10      5      2   0             0  is_stmt
+0x0000000000001521     13     18      2   0             0  is_stmt
+0x0000000000001527     13     23      2   0             0  is_stmt
+0x0000000000001532     13      7      2   0             0  is_stmt
+0x000000000000153a     16      3      2   0             0  is_stmt
+0x000000000000154e     17      3      2   0             0  is_stmt
+0x0000000000001565     19      3      2   0             0  is_stmt
+0x000000000000157a     21      1      2   0             0  is_stmt
+0x000000000000157d     26      1      2   0             0  is_stmt
+0x0000000000001590     28      9      2   0             0  is_stmt
+0x0000000000001597     28      2      2   0             0  is_stmt
+0x0000000000001599     29     18      2   0             3  is_stmt
+0x00000000000015ad     29      3      2   0             3  is_stmt
+0x00000000000015c2     28     25      2   0             3  is_stmt
+0x00000000000015c6     28      2      2   0             1  is_stmt
+0x00000000000015ce     30      2      2   0             0  is_stmt
+0x00000000000015d8     31      1      2   0             0  is_stmt
+0x00000000000015db     35      1      2   0             0  is_stmt
+0x00000000000015e7     35      1      2   0             0  is_stmt
+0x00000000000015f6     36      6      2   0             0  is_stmt
+0x0000000000001620     37      6      2   0             0  is_stmt
+0x0000000000001627     39      2      2   0             0  is_stmt
+0x0000000000001633     40      2      2   0             0  is_stmt
+0x0000000000001644     42      2      2   0             0  is_stmt
+0x000000000000165b     44      2      2   0             0  is_stmt
+0x0000000000001667     45      2      2   0             0  is_stmt
+0x0000000000001678     46      9      2   0             0  is_stmt
+0x000000000000167d     47      1      2   0             0  is_stmt
+0x0000000000001693     47      1      2   0             0  is_stmt end_sequence
+
