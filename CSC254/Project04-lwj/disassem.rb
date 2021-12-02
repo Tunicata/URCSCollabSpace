@@ -67,7 +67,7 @@ objdump_asm.each{ |line|
     end
     
     if newFileFlag
-        currBlock[1].push("----------------- file " + newFileFlag[0] + ": " + newFileFlag[1] + " -------------------")
+        currBlock[1].push("----------------- file " + newFileFlag[0] + ": " + newFileFlag[1] + " -------------------\n")
         newFileFlag = nil
     end
 

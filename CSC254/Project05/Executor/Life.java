@@ -12,14 +12,16 @@
 import java.awt.*;          // older of the two standard Java GUIs
 import java.awt.event.*;
 import javax.swing.*;
-import java.lang.Thread.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Life {
     public static final int n = 100;    // number of cells on a side
     private static int pauseIterations = -(500000000/n/n);
         // nanoseconds per dot for a delay of about a half a second
-    public static int numThreads = 1;
+    public static long numThreads = 1;
         // I currently don't do anything with this variable.
         // You should.
     private static boolean headless = false;    // don't create GUI
@@ -99,15 +101,14 @@ public class Life {
     }
 }
 
+
 // The Worker is the thread that does the actual work of calculating new
 // generations.
 //
-class Worker extends Thread {
+class Worker implements Runnable {
     private final LifeBoard lb;
     private final Coordinator c;
     private final UI u;
-    private final int st;
-    private final int ed;
 
     // The run() method of a Java Thread is never invoked directly by
     // user code.  Rather, it is called by the Java runtime when user
@@ -126,8 +127,8 @@ class Worker extends Thread {
         try {
             c.register();
             try {
-                while (true) {
-                    lb.doGeneration(st, ed);
+                while (lb.runFlag) {
+                    lb.doGeneration();
                 }
             } catch(Coordinator.KilledException e) {
                 System.out.println("killed");
@@ -139,14 +140,13 @@ class Worker extends Thread {
 
     // Constructor
     //
-    public Worker(LifeBoard LB, Coordinator C, UI U, int St, int Ed) {
+    public Worker(LifeBoard LB, Coordinator C, UI U) {
         lb = LB;
         c = C;
         u = U;
-        st = St;
-        ed = Ed;
     }
 }
+
 
 // The LifeBoard is the Life world, containing all the cells.
 // It embeds all knowledge about how to display things graphically.
@@ -157,12 +157,14 @@ class LifeBoard extends JPanel {
     private static final int dotsize = 6;
     private static final int border = dotsize;
     static  boolean headless = false;
+	public boolean runFlag;
+	
+	private ExecutorService executor;
+	
     private int A[][];  // scratch board
     private int B[][];  // board contents
     private int T[][];  // temporary pointer
     private int generation = 0;
-
-    private AtomicInteger completed = new AtomicInteger(0);
 
     // following fields are set by constructor:
     private final Coordinator c;
@@ -181,6 +183,44 @@ class LifeBoard extends JPanel {
         repaint();
     }
 
+	class boardUpdater implements Callable<Boolean> {
+		private final int st;
+		private final int ed;
+		
+		boardUpdater (int St, int Ed) {
+			st = St;
+			ed = Ed;
+		}
+		
+		public Boolean call(){
+			try{
+				for (int i = st; i < ed; i++) {
+            		for (int j = 0; j < n; j++) {
+					    c.hesitate();
+		                int im = (i+n-1) % n; int ip = (i+1) % n;
+		                int jm = (j+n-1) % n; int jp = (j+1) % n;
+		                switch (B[im][jm] + B[im][j] + B[im][jp] +
+		                        B[i][jm]             + B[i][jp] +
+		                        B[ip][jm] + B[ip][j] + B[ip][jp]) {
+		                    case 0 :
+		                    case 1 : A[i][j] = 0;       break;
+		                    case 2 : A[i][j] = B[i][j]; break;
+		                    case 3 : A[i][j] = 1;       break;
+		                    case 4 :
+		                    case 5 :
+		                    case 6 :
+		                    case 7 :
+		                    case 8 : A[i][j] = 0;       break;
+		                }
+		            }
+		        }
+		        
+			} catch (Coordinator.KilledException ke) {
+				runFlag = false;
+			}
+			return true;
+		}
+	}
     // This is the function that actually plays (one full generation of)
     // the game.  It is called by the run() method of Thread class
     // Worker.  You'll want to replace this with something that does
@@ -189,41 +229,26 @@ class LifeBoard extends JPanel {
     // c.register() when they start work, and c.unregister() when
     // they finish, so the Coordinator can manage them.
     //
-    public void doGeneration(int st, int ed) throws Coordinator.KilledException {
-        for (int i = st; i < ed; i++) {
-            for (int j = 0; j < n; j++) {
+    public void doGeneration() throws Coordinator.KilledException {
+		int partition_size = Life.n / (int)(Life.numThreads) + 1;
+		ArrayList<Callable<Boolean>> callList = new ArrayList<Callable<Boolean>>();
+        for (int i=0; i < (int)(Life.numThreads); i++)
+        {
 
-                // NOTICE: you are REQUIRED to call hesitate() EVERY TIME
-                // you update a LifeBoard cell.  The call serves three
-                // purposes: (1) it checks to see whether you should
-                // pause or stop; (2) it introduces delay that allows
-                // you to see the board evolving; (3) it will give you
-                // the appearance of speedup with additional threads.
+            callList.add(new boardUpdater(partition_size * i, min(partition_size * (i+1), Life.n)));
+        }
 
-                c.hesitate();
-                int im = (i+n-1) % n; int ip = (i+1) % n;
-                int jm = (j+n-1) % n; int jp = (j+1) % n;
-                switch (B[im][jm] + B[im][j] + B[im][jp] +
-                        B[i][jm]             + B[i][jp] +
-                        B[ip][jm] + B[ip][j] + B[ip][jp]) {
-                    case 0 :
-                    case 1 : A[i][j] = 0;       break;
-                    case 2 : A[i][j] = B[i][j]; break;
-                    case 3 : A[i][j] = 1;       break;
-                    case 4 :
-                    case 5 :
-                    case 6 :
-                    case 7 :
-                    case 8 : A[i][j] = 0;       break;
-                }
-            }
+        try
+        {
+            executor.invokeAll(callList);
         }
-        
-        if (completed.addAndGet(1) == Life.numThreads) {
-            T = B;  B = A;  A = T;
-            completed.set(0);
+        catch(InterruptedException e)
+        {
+            return;
         }
-        
+
+		T = B;  B = A;  A = T;
+
         if (headless) {
             if (generation % 10 == 0) {
                 System.out.println("generation " + generation
@@ -234,8 +259,10 @@ class LifeBoard extends JPanel {
             // tell graphic system that LifeBoard needs to be re-rendered:
             repaint ();
         }
-
-        while (completed.get() != 0);
+    }
+	
+	private int min(int a, int b) {
+        return a > b ? b : a;
     }
 
     // The following method is called automatically by the graphics
@@ -298,6 +325,9 @@ class LifeBoard extends JPanel {
 
         A = new int[n][n];  // initialized to all 0
         B = new int[n][n];  // initialized to all 0
+		
+		runFlag = false;
+		executor= Executors.newFixedThreadPool((int)(Life.numThreads));
 
         setPreferredSize(new Dimension(width+border*2, height+border*2));
         setBackground(Color.white);
@@ -426,20 +456,9 @@ class UI extends JPanel {
     }
 
     public void onRunClick() {
-        int partition_size = Life.n / Life.numThreads + 1;
-
-        Worker[] ws = new Worker[Life.numThreads];
-        for (int i=0; i < Life.numThreads; i++) {
-            ws[i] = new Worker(lb, c, this, partition_size * i, min(partition_size * (i+1), Life.n));
-            // System.out.println(partition_size * i + "," + min(partition_size * (i+1) - 1, Life.n));
-        }
-        
-        for (int i=0; i < Life.numThreads; i++) {
-            ws[i].start();
-        }
+        lb.runFlag = true;
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        executorService.execute(new Worker(lb, c, this));
     }
 
-    private int min(int a, int b) {
-        return a > b ? b : a;
-    }
 }

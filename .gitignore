@@ -1,6 +1,10 @@
 # VSCode config
 .vscode
 
+# Jetbrains config
+.idea
+.idea/*
+
 # CSC254 Project 2 binary files
 CSC254/Project02/parser_2021/._*
 CSC254/Project02/parser_2021/*.o
