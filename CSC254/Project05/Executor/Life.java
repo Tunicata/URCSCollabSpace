@@ -24,6 +24,7 @@ public class Life {
     public static long numThreads = 1;
         // I currently don't do anything with this variable.
         // You should.
+
     private static boolean headless = false;    // don't create GUI
     private static boolean glider = false;      // create initial glider
 
@@ -232,18 +233,14 @@ class LifeBoard extends JPanel {
     public void doGeneration() throws Coordinator.KilledException {
 		int partition_size = Life.n / (int)(Life.numThreads) + 1;
 		ArrayList<Callable<Boolean>> callList = new ArrayList<Callable<Boolean>>();
-        for (int i=0; i < (int)(Life.numThreads); i++)
-        {
 
+        for (int i=0; i < (int)(Life.numThreads); i++) {    
             callList.add(new boardUpdater(partition_size * i, min(partition_size * (i+1), Life.n)));
         }
 
-        try
-        {
+        try {
             executor.invokeAll(callList);
-        }
-        catch(InterruptedException e)
-        {
+        } catch(InterruptedException e) {
             return;
         }
 
@@ -372,6 +369,7 @@ class UI extends JPanel {
         final JPanel b = new JPanel();   // button panel
 
         final JButton runButton = new JButton("Run");
+        final JButton stepButton = new JButton("Step");
         final JButton pauseButton = new JButton("Pause");
         final JButton stopButton = new JButton("Stop");
         final JButton clearButton = new JButton("Clear");
@@ -402,6 +400,19 @@ class UI extends JPanel {
                     root.setDefaultButton(pauseButton);
                     c.toggle();
                 }
+            }
+        });
+        stepButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (state == stopped) {
+                    state = running;
+                    onStepClick();
+                } else if (state == paused) {
+                    state = running;
+                    c.toggle();
+                }
+                state = stopped;
+                c.stop();
             }
         });
         pauseButton.addActionListener(new ActionListener() {
@@ -437,6 +448,7 @@ class UI extends JPanel {
         // put the buttons into the button panel:
         b.setLayout(new FlowLayout());
         b.add(runButton);
+        b.add(stepButton);
         b.add(pauseButton);
         b.add(stopButton);
         b.add(clearButton);
@@ -459,6 +471,26 @@ class UI extends JPanel {
         lb.runFlag = true;
         ExecutorService executorService = Executors.newFixedThreadPool(1);
         executorService.execute(new Worker(lb, c, this));
+    }
+
+    public void onStepClick() {
+        lb.runFlag = true;
+        ExecutorService executorService = Executors.newFixedThreadPool(1);
+        executorService.execute(new Runnable() {
+            public void run() {
+                        try {
+                            c.register();
+                            try {
+                                lb.doGeneration();
+                            } catch(Coordinator.KilledException e) {
+                                System.out.println("killed");
+                            }
+                        } finally {
+                            c.unregister();
+                        }
+            }
+        });
+        lb.runFlag = false;
     }
 
 }

@@ -13,7 +13,8 @@ import java.awt.*;          // older of the two standard Java GUIs
 import java.awt.event.*;
 import javax.swing.*;
 import java.lang.Thread.*;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.CyclicBarrier;
+import java.util.concurrent.BrokenBarrierException;
 
 public class Life {
     public static final int n = 100;    // number of cells on a side
@@ -22,6 +23,7 @@ public class Life {
     public static int numThreads = 1;
         // I currently don't do anything with this variable.
         // You should.
+
     private static boolean headless = false;    // don't create GUI
     private static boolean glider = false;      // create initial glider
 
@@ -129,7 +131,7 @@ class Worker extends Thread {
                 while (true) {
                     lb.doGeneration(st, ed);
                 }
-            } catch(Coordinator.KilledException e) {
+            } catch (Coordinator.KilledException e) {
                 System.out.println("killed");
             }
         } finally {
@@ -140,6 +142,50 @@ class Worker extends Thread {
     // Constructor
     //
     public Worker(LifeBoard LB, Coordinator C, UI U, int St, int Ed) {
+        lb = LB;
+        c = C;
+        u = U;
+        st = St;
+        ed = Ed;
+    }
+}
+
+class StepWorker extends Thread {
+    private final LifeBoard lb;
+    private final Coordinator c;
+    private final UI u;
+    private final int st;
+    private final int ed;
+
+    // The run() method of a Java Thread is never invoked directly by
+    // user code.  Rather, it is called by the Java runtime when user
+    // code calls start().
+    //
+    // The run() method of a worker thread *must* begin by calling
+    // c.register() and end by calling c.unregister().  These allow the
+    // user interface (via the Coordinator) to pause and terminate
+    // workers.  Note how the worker is set up to catch KilledException.
+    // In the process of unwinding back to here we'll cleanly and
+    // automatically release any monitor locks.  If you create new kinds
+    // of workers (as part of a parallel player), make sure they call
+    // c.register() and c.unregister() properly.
+    //
+    public void run() {
+        try {
+            c.register();
+            try {
+                lb.doGeneration(st, ed);
+            } catch (Coordinator.KilledException e) {
+                System.out.println("killed");
+            }
+        } finally {
+            c.unregister();
+        }
+    }
+
+    // Constructor
+    //
+    public StepWorker(LifeBoard LB, Coordinator C, UI U, int St, int Ed) {
         lb = LB;
         c = C;
         u = U;
@@ -162,7 +208,22 @@ class LifeBoard extends JPanel {
     private int T[][];  // temporary pointer
     private int generation = 0;
 
-    private AtomicInteger completed = new AtomicInteger(0);
+    private final CyclicBarrier cyclicBarrier = new CyclicBarrier((int)Life.numThreads, new Runnable() {
+        public void run() {
+            T = B;  B = A;  A = T;
+            
+            if (headless) {
+                if (generation % 10 == 0) {
+                    System.out.println("generation " + generation
+                        + " done @ " + System.currentTimeMillis());
+                }
+                ++generation;
+            } else {
+                // tell graphic system that LifeBoard needs to be re-rendered:
+                repaint ();
+            }
+        }
+    });
 
     // following fields are set by constructor:
     private final Coordinator c;
@@ -218,11 +279,18 @@ class LifeBoard extends JPanel {
                 }
             }
         }
-        
-        if (completed.addAndGet(1) == Life.numThreads) {
-            T = B;  B = A;  A = T;
-            completed.set(0);
+
+        try {
+           cyclicBarrier.await();
+        } catch (InterruptedException ie) {
+           return;
+        } catch (BrokenBarrierException bbe) {
+           return;
         }
+    }
+
+    public void updateBoard() {
+        T = B;  B = A;  A = T;
         
         if (headless) {
             if (generation % 10 == 0) {
@@ -234,8 +302,6 @@ class LifeBoard extends JPanel {
             // tell graphic system that LifeBoard needs to be re-rendered:
             repaint ();
         }
-
-        while (completed.get() != 0);
     }
 
     // The following method is called automatically by the graphics
@@ -296,6 +362,7 @@ class LifeBoard extends JPanel {
         u = U;
         headless = hdless;
 
+
         A = new int[n][n];  // initialized to all 0
         B = new int[n][n];  // initialized to all 0
 
@@ -342,6 +409,7 @@ class UI extends JPanel {
         final JPanel b = new JPanel();   // button panel
 
         final JButton runButton = new JButton("Run");
+        final JButton stepButton = new JButton("Step");
         final JButton pauseButton = new JButton("Pause");
         final JButton stopButton = new JButton("Stop");
         final JButton clearButton = new JButton("Clear");
@@ -372,6 +440,19 @@ class UI extends JPanel {
                     root.setDefaultButton(pauseButton);
                     c.toggle();
                 }
+            }
+        });
+        stepButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                if (state == stopped) {
+                    state = running;
+                    onStepClick();
+                } else if (state == paused) {
+                    state = running;
+                    c.toggle();
+                }
+                state = stopped;
+                c.stop();
             }
         });
         pauseButton.addActionListener(new ActionListener() {
@@ -407,6 +488,7 @@ class UI extends JPanel {
         // put the buttons into the button panel:
         b.setLayout(new FlowLayout());
         b.add(runButton);
+        b.add(stepButton);
         b.add(pauseButton);
         b.add(stopButton);
         b.add(clearButton);
@@ -431,10 +513,17 @@ class UI extends JPanel {
         Worker[] ws = new Worker[Life.numThreads];
         for (int i=0; i < Life.numThreads; i++) {
             ws[i] = new Worker(lb, c, this, partition_size * i, min(partition_size * (i+1), Life.n));
-            // System.out.println(partition_size * i + "," + min(partition_size * (i+1) - 1, Life.n));
+            System.out.println("thread-" + i + " ready to go");
+            ws[i].start();
         }
-        
+    }
+
+    public void onStepClick() {
+        int partition_size = Life.n / Life.numThreads + 1;
+
+        StepWorker[] ws = new StepWorker[Life.numThreads];
         for (int i=0; i < Life.numThreads; i++) {
+            ws[i] = new StepWorker(lb, c, this, partition_size * i, min(partition_size * (i+1), Life.n));
             ws[i].start();
         }
     }
